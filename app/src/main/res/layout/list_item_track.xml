@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/artist_image_content_description"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:maxHeight="@dimen/imageview_max_height"
+        android:maxWidth="@dimen/imageview_max_width"
+        android:adjustViewBounds="true"
+        android:id="@+id/albumArtImageView"
+        android:minHeight="@dimen/imageview_min_height"
+        android:minWidth="@dimen/imageview_min_width"
+        android:scaleType="fitXY"
+        android:cropToPadding="true"
+        android:layout_margin="@dimen/imageview_margin"
+        />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="@dimen/textview_margin_left"
+        android:layout_marginLeft="@dimen/textview_margin_left"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/trackName"
+            android:textSize="@dimen/text_size_track_name"
+            android:layout_weight="1"
+            android:paddingBottom="@dimen/textview_horizontal_padding"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/albumName"
+            android:textSize="@dimen/text_size_album_name"
+            android:layout_weight="1"
+            android:paddingTop="@dimen/textview_horizontal_padding"/>
+    </LinearLayout>
+
+</RelativeLayout>
