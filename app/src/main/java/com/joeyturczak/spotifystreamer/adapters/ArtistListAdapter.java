@@ -12,8 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.joeyturczak.spotifystreamer.models.MyArtist;
 import com.joeyturczak.spotifystreamer.R;
+import com.joeyturczak.spotifystreamer.models.MyArtist;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -70,7 +70,7 @@ public class ArtistListAdapter extends ArrayAdapter<MyArtist> {
                 Picasso.with(mContext).load(imageUrl).into(artistImageView);
             }
             else {
-                artistImageView.setImageResource(android.R.drawable.gallery_thumb);
+                artistImageView.setImageResource(android.R.drawable.picture_frame);
             }
         }
 

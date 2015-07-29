@@ -1,0 +1,101 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:tools="http://schemas.android.com/tools"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:orientation="vertical"
+                  android:gravity="center_horizontal"
+                  android:id="@+id/playerFragment"
+                  android:padding="@dimen/activity_horizontal_margin"
+                  tools:context="com.joeyturczak.spotifystreamer.ui.PlayerFragment">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/artistName"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/albumName"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/imageview_padding"
+        android:id="@+id/albumArtImageView"
+        android:contentDescription="@string/artist_image_content_description"/>
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:progressDrawable="@drawable/circle_progress_bar"
+        android:layout_gravity="center"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/trackName"/>
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:progress="0"
+        android:max="30"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/time_default_text"
+            android:id="@+id/timeElapsed"
+            android:gravity="start"
+            android:layout_weight="1"
+            android:textAlignment="gravity"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/time_default_text"
+            android:id="@+id/duration"
+            android:layout_weight="1"
+            android:textAlignment="gravity"
+            android:gravity="end"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        style="?android:attr/buttonBarStyle">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/previousButton"
+            style="?android:buttonBarButtonStyle"
+            android:background="@android:drawable/ic_media_previous"
+            android:layout_weight="1"/>
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/playButton"
+            style="?android:attr/buttonBarButtonStyle"
+            android:background="@android:drawable/ic_media_play"
+            android:layout_weight="1"/>
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/nextButton"
+            style="?android:attr/buttonBarButtonStyle"
+            android:background="@android:drawable/ic_media_next"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+</LinearLayout>

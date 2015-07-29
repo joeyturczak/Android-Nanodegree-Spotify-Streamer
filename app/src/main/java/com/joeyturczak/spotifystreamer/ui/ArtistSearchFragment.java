@@ -6,7 +6,6 @@ package com.joeyturczak.spotifystreamer.ui;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -51,6 +50,10 @@ public class ArtistSearchFragment extends Fragment {
     public ArtistSearchFragment() {
     }
 
+    public interface Callback {
+        public void onItemSelected(MyArtist artist);
+    }
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -84,6 +87,7 @@ public class ArtistSearchFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -102,19 +106,16 @@ public class ArtistSearchFragment extends Fragment {
                              Bundle savedInstanceState) {
         View mRootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        ListView artistListView = (ListView) mRootView.findViewById(R.id.artistListView);
+        ListView listView = (ListView) mRootView.findViewById(R.id.artistListView);
 
         mArtistListAdapter = new ArtistListAdapter(mContext, R.layout.list_item_artist, mMyArtists);
-        artistListView.setAdapter(mArtistListAdapter);
+        listView.setAdapter(mArtistListAdapter);
 
-        artistListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                MyArtist artist = mMyArtists.get(position);
-                Intent intent = new Intent(getActivity(), ArtistDetailActivity.class);
-                intent.putExtra(mContext.getString(R.string.intent_key_artist), artist);
-                intent.putExtra(Intent.EXTRA_TITLE, artist.getArtistName());
-                startActivity(intent);
+                ((Callback) getActivity())
+                        .onItemSelected(mMyArtists.get(position));
             }
         });
 

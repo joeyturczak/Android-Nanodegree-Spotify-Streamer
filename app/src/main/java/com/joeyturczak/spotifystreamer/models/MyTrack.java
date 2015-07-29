@@ -16,20 +16,26 @@ import android.os.Parcelable;
  */
 public class MyTrack implements Parcelable {
 
+    String mArtistName;
     String mTrackName;
     String mTrackAlbumName;
     String mTrackAlbumImageUrl;
+    String mTrackPreviewUrl;
 
-    public MyTrack(String name, String albumName, String imageUrl) {
-        mTrackName = name;
+    public MyTrack(String artistName, String trackName, String albumName, String imageUrl, String previewUrl) {
+        mArtistName = artistName;
+        mTrackName = trackName;
         mTrackAlbumName = albumName;
         mTrackAlbumImageUrl = imageUrl;
+        mTrackPreviewUrl = previewUrl;
     }
 
     protected MyTrack(Parcel in) {
+        mArtistName = in.readString();
         mTrackName = in.readString();
         mTrackAlbumName = in.readString();
         mTrackAlbumImageUrl = in.readString();
+        mTrackPreviewUrl = in.readString();
     }
 
     public static final Creator<MyTrack> CREATOR = new Creator<MyTrack>() {
@@ -51,9 +57,11 @@ public class MyTrack implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mArtistName);
         dest.writeString(mTrackName);
         dest.writeString(mTrackAlbumName);
         dest.writeString(mTrackAlbumImageUrl);
+        dest.writeString(mTrackPreviewUrl);
     }
 
     public String getTrackName() {
@@ -78,5 +86,21 @@ public class MyTrack implements Parcelable {
 
     public void setTrackAlbumImageUrl(String trackAlbumImageUrl) {
         mTrackAlbumImageUrl = trackAlbumImageUrl;
+    }
+
+    public String getTrackPreviewUrl() {
+        return mTrackPreviewUrl;
+    }
+
+    public void setTrackPreviewUrl(String trackPreviewUrl) {
+        mTrackPreviewUrl = trackPreviewUrl;
+    }
+
+    public String getArtistName() {
+        return mArtistName;
+    }
+
+    public void setArtistName(String artistName) {
+        mArtistName = artistName;
     }
 }

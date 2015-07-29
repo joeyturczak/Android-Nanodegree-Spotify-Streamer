@@ -1,13 +1,41 @@
 <resources>
     <string name="app_name">Spotify Streamer</string>
+
     <string name="action_settings">Settings</string>
+    <string name="action_share">Share</string>
+    <string name="action_now_playing">Now Playing</string>
+
     <string name="artist_search_hint">Search for an artist</string>
     <string name="artist_image_content_description">Artist Image</string>
-    <string name="toast_no_artists_message">No artists found! Please refine your search.</string>
+
     <string name="title_activity_artist_detail">Top Tracks</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="toast_no_artists_message">No artists found! Please refine your search.</string>
     <string name="toast_network_error">Network Error</string>
-    <string name="country_code">US</string>
+    <string name="toast_no_tracks">No top tracks for this artist</string>
+
     <string name="bundle_key_artist">Artist</string>
     <string name="bundle_key_bundle">Bundle</string>
     <string name="intent_key_artist">Artist</string>
+    <string name="bundle_tracks_key">Tracks</string>
+    <string name="bundle_position_key">Position</string>
+
+    <string name="default_country_code">US</string>
+    <string name="country_code_key">country_code</string>
+    <string name="county_code_title">County Code</string>
+
+    <string name="prefs_notification_title">Notifications</string>
+    <string name="prefs_notification_key">enable_notifications</string>
+    <string name="prefs_notification_false">Not Enabled</string>
+    <string name="prefs_notification_true">Enabled</string>
+    <string name="prefs_notification_default">true</string>
+
+    <string name="time_default_text">0:00</string>
+
+    <string name="share_key">Share</string>
+    <string name="broadcast_prepared">Prepared</string>
+    <string name="broadcast_completed">Completed</string>
+    <string name="broadcast_notification_button_pressed">Notification</string>
+
 </resources>

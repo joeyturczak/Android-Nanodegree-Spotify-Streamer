@@ -1,0 +1,17 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:title="@string/county_code_title"
+        android:key="@string/country_code_key"
+        android:defaultValue="@string/default_country_code"
+        android:inputType="text"
+        android:singleLine="true"/>
+
+    <CheckBoxPreference
+        android:title="@string/prefs_notification_title"
+        android:key="@string/prefs_notification_key"
+        android:summaryOff="@string/prefs_notification_false"
+        android:summaryOn="@string/prefs_notification_true"
+        android:defaultValue="@string/prefs_notification_default" />
+
+</PreferenceScreen>

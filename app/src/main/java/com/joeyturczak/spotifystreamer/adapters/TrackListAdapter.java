@@ -23,7 +23,7 @@ import java.util.ArrayList;
  */
 
 /**
- * Populates the list view for the ArtistDetailActivityFragment with top ten tracks from the artist.
+ * Populates the list view for the ArtistDetailFragment with top ten tracks from the artist.
  */
 public class TrackListAdapter extends ArrayAdapter<MyTrack> {
 
@@ -72,7 +72,7 @@ public class TrackListAdapter extends ArrayAdapter<MyTrack> {
                 Picasso.with(mContext).load(imageUrl).into(albumArtImageView);
             }
             else {
-                albumArtImageView.setImageResource(android.R.drawable.gallery_thumb);
+                albumArtImageView.setImageResource(android.R.drawable.picture_frame);
             }
         }
 

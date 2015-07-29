@@ -2,19 +2,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="@dimen/list_item_height">
     <ImageView
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/imageview_list_item_width"
         android:layout_height="wrap_content"
         android:contentDescription="@string/artist_image_content_description"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:maxHeight="@dimen/imageview_max_height"
-        android:maxWidth="@dimen/imageview_max_width"
         android:adjustViewBounds="true"
         android:id="@+id/albumArtImageView"
-        android:minHeight="@dimen/imageview_min_height"
-        android:minWidth="@dimen/imageview_min_width"
         android:scaleType="fitXY"
         android:cropToPadding="true"
         android:layout_margin="@dimen/imageview_margin"

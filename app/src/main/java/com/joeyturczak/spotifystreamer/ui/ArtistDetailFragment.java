@@ -6,19 +6,22 @@ package com.joeyturczak.spotifystreamer.ui;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.joeyturczak.spotifystreamer.R;
 import com.joeyturczak.spotifystreamer.adapters.TrackListAdapter;
 import com.joeyturczak.spotifystreamer.models.MyArtist;
 import com.joeyturczak.spotifystreamer.models.MyTrack;
+import com.joeyturczak.spotifystreamer.utils.Utility;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,20 +37,30 @@ import kaaes.spotify.webapi.android.models.Tracks;
 import retrofit.client.Response;
 
 /**
- * A placeholder fragment containing a simple view.
+ * Shows selected artist's top ten tracks in a list view.
  */
-public class ArtistDetailActivityFragment extends Fragment {
+public class ArtistDetailFragment extends Fragment {
 
-    private static final String LOG_TAG = ArtistDetailActivityFragment.class.getSimpleName();
+    private static final String LOG_TAG = ArtistDetailFragment.class.getSimpleName();
+
+    private static final String PLAYERFRAGMENT_TAG = "PFTAG";
 
     private Context mContext;
     private TrackListAdapter mTrackListAdapter;
+
+    private int mPosition;
 
     private ArrayList<MyTrack> mMyTracks;
 
     private MyArtist mMyArtist;
 
-    public ArtistDetailActivityFragment() {
+    private boolean mIsLargeLayout;
+
+    private String mCountryCode;
+
+    private Toast mTopTracksToast;
+
+    public ArtistDetailFragment() {
     }
 
     @Override
@@ -55,6 +68,15 @@ public class ArtistDetailActivityFragment extends Fragment {
         super.onAttach(activity);
         mContext = activity;
         mMyTracks = new ArrayList<>();
+        mIsLargeLayout = getResources().getBoolean(R.bool.large_layout);
+        mCountryCode = Utility.getCountryCode(getActivity());
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -62,20 +84,53 @@ public class ArtistDetailActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_artist_detail, container, false);
 
-        Intent intent = getActivity().getIntent();
-        if(intent != null && intent.hasExtra(mContext.getString(R.string.intent_key_artist))) {
-            mMyArtist = intent.getParcelableExtra(mContext.getString(R.string.intent_key_artist));
+        if(getArguments() != null) {
+            Bundle arguments = getArguments();
+            mMyArtist = arguments.getParcelable(getString(R.string.bundle_key_artist));
         }
 
-        ListView artistListView = (ListView) rootView.findViewById(R.id.artistListView);
+        ListView listView = (ListView) rootView.findViewById(R.id.artistListView);
 
         mTrackListAdapter = new TrackListAdapter(mContext, R.layout.list_item_track, mMyTracks);
-        artistListView.setAdapter(mTrackListAdapter);
+        listView.setAdapter(mTrackListAdapter);
 
-        spotifySearch();
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mPosition = position;
+                showDialog();
+            }
+        });
+
+        if(mMyArtist != null) {
+            spotifySearch();
+        }
 
         return rootView;
     }
+
+    /**  Launches the music player fragment. The music player will display in a dialog screen if the device is a tablet. */
+    public void showDialog() {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        PlayerFragment playerFragment = new PlayerFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList(mContext.getString(R.string.bundle_tracks_key), mMyTracks);
+        bundle.putInt(mContext.getString(R.string.bundle_position_key), mPosition);
+
+        playerFragment.setArguments(bundle);
+
+        if (mIsLargeLayout) {
+            // The device is using a large layout, so show the fragment as a dialog
+            playerFragment.show(fragmentManager, "dialog");
+        } else {
+            fragmentManager.beginTransaction()
+                    .replace(R.id.artistSearchFragment, playerFragment, PLAYERFRAGMENT_TAG)
+                    .addToBackStack(PLAYERFRAGMENT_TAG)
+                    .commit();
+        }
+    }
+
 
     /** Gets the top tracks of the artist from Spotify via the getArtistTopTrack API and sends the relevant data to the list adapter. */
     private void spotifySearch() {
@@ -84,7 +139,7 @@ public class ArtistDetailActivityFragment extends Fragment {
         final SpotifyService spotify = api.getService();
 
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(SpotifyService.COUNTRY, mContext.getString(R.string.country_code));
+        map.put(SpotifyService.COUNTRY, mCountryCode);
 
         spotify.getArtistTopTrack(mMyArtist.getArtistId(), map, new SpotifyCallback<Tracks>() {
             @Override
@@ -101,16 +156,27 @@ public class ArtistDetailActivityFragment extends Fragment {
                     public void run() {
                         mMyTracks.clear();
                         mTrackListAdapter.notifyDataSetChanged();
+
                         if (trackList.size() > 0) {
+
                             for(int i = 0; i < trackList.size(); i++) {
+                                String artistName = mMyArtist.getArtistName();
                                 String trackName = trackList.get(i).name;
                                 String albumName = trackList.get(i).album.name;
                                 String imageUrl = "";
                                 if(trackList.get(i).album.images.size() > 0) {
                                     imageUrl = trackList.get(i).album.images.get(0).url;
                                 }
-                                mTrackListAdapter.add(new MyTrack(trackName, albumName, imageUrl));
+                                String previewUrl = trackList.get(i).preview_url;
+
+                                mTrackListAdapter.add(new MyTrack(artistName, trackName, albumName, imageUrl, previewUrl));
                             }
+                        } else {
+                            if(mTopTracksToast != null) {
+                                mTopTracksToast.cancel();
+                            }
+                            mTopTracksToast = Toast.makeText(getActivity(), R.string.toast_no_tracks, Toast.LENGTH_SHORT);
+                            mTopTracksToast.show();
                         }
                     }
                 });
