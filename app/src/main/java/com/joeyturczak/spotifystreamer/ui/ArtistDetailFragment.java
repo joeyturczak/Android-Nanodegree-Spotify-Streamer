@@ -80,6 +80,17 @@ public class ArtistDetailFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(!mMyTracks.isEmpty()) {
+            Bundle bundle = new Bundle();
+            bundle.putParcelableArrayList(getString(R.string.bundle_tracks_key), mMyTracks);
+            bundle.putInt(getString(R.string.bundle_position_key), mPosition);
+            outState.putBundle(getString(R.string.bundle_key_bundle), bundle);
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_artist_detail, container, false);
@@ -87,6 +98,14 @@ public class ArtistDetailFragment extends Fragment {
         if(getArguments() != null) {
             Bundle arguments = getArguments();
             mMyArtist = arguments.getParcelable(getString(R.string.bundle_key_artist));
+        }
+
+        if(savedInstanceState != null) {
+            Bundle bundle = savedInstanceState.getBundle(getString(R.string.bundle_key_bundle));
+            if(bundle != null) {
+                mMyTracks = bundle.getParcelableArrayList(getString(R.string.bundle_tracks_key));
+                mPosition = bundle.getInt(getString(R.string.bundle_position_key));
+            }
         }
 
         ListView listView = (ListView) rootView.findViewById(R.id.artistListView);
@@ -102,7 +121,7 @@ public class ArtistDetailFragment extends Fragment {
             }
         });
 
-        if(mMyArtist != null) {
+        if(mMyTracks.isEmpty()) {
             spotifySearch();
         }
 

@@ -188,7 +188,7 @@ public class PlayerFragment extends DialogFragment {
             MediaPlayerService.MediaBinder binder = (MediaPlayerService.MediaBinder) service;
 
             mMediaPlayerService = binder.getService();
-            if(mMyTracks == null) {
+            if(mCurrentPosition < 0) {
                 mMyTracks = mMediaPlayerService.getTrackList();
                 mCurrentPosition = mMediaPlayerService.getPosition();
                 mCurrentTrack = mMyTracks.get(mCurrentPosition);
