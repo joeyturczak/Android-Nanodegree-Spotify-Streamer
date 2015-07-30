@@ -121,8 +121,10 @@ public class ArtistDetailFragment extends Fragment {
             }
         });
 
-        if(mMyTracks.isEmpty()) {
-            spotifySearch();
+        if(mMyArtist != null) {
+            if (mMyTracks.isEmpty()) {
+                spotifySearch();
+            }
         }
 
         return rootView;
