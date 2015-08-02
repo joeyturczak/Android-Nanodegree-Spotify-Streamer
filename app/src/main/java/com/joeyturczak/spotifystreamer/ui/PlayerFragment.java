@@ -35,6 +35,9 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 /**
  * Binds to the MediaPlayerService and maintains the display for the current track.
  */
@@ -52,17 +55,17 @@ public class PlayerFragment extends DialogFragment {
     ArrayList<MyTrack> mMyTracks;
     MyTrack mCurrentTrack;
 
-    public TextView mArtistName;
-    public TextView mAlbumTitle;
-    public ImageView mAlbumArt;
-    public TextView trackName;
-    public Button mPreviousButton;
-    public Button mPlayButton;
-    public Button mNextButton;
-    public SeekBar mSeekBar;
-    public TextView mTimeElapsed;
-    public TextView mDuration;
-    public ProgressBar mProgressBar;
+    @Bind(R.id.artistName) TextView mArtistName;
+    @Bind(R.id.albumName) TextView mAlbumTitle;
+    @Bind(R.id.albumArtImageView) ImageView mAlbumArt;
+    @Bind(R.id.trackName) TextView mTrackName;
+    @Bind(R.id.previousButton) Button mPreviousButton;
+    @Bind(R.id.playButton) Button mPlayButton;
+    @Bind(R.id.nextButton) Button mNextButton;
+    @Bind(R.id.seekBar) SeekBar mSeekBar;
+    @Bind(R.id.timeElapsed) TextView mTimeElapsed;
+    @Bind(R.id.duration) TextView mDuration;
+    @Bind(R.id.progressBar) ProgressBar mProgressBar;
 
     /** Turns off the progress spinner when the media player enters the prepared state. */
     private BroadcastReceiver mPreparedReceiver = new BroadcastReceiver() {
@@ -131,17 +134,7 @@ public class PlayerFragment extends DialogFragment {
         // Inflate the layout to use as dialog or embedded fragment
         final View rootView = inflater.inflate(R.layout.fragment_player, container, false);
 
-        mArtistName = (TextView) rootView.findViewById(R.id.artistName);
-        mAlbumTitle = (TextView) rootView.findViewById(R.id.albumName);
-        mAlbumArt = (ImageView) rootView.findViewById(R.id.albumArtImageView);
-        trackName = (TextView) rootView.findViewById(R.id.trackName);
-        mPreviousButton = (Button) rootView.findViewById(R.id.previousButton);
-        mPlayButton = (Button) rootView.findViewById(R.id.playButton);
-        mNextButton = (Button) rootView.findViewById(R.id.nextButton);
-        mSeekBar = (SeekBar) rootView.findViewById(R.id.seekBar);
-        mTimeElapsed = (TextView) rootView.findViewById(R.id.timeElapsed);
-        mDuration = (TextView) rootView.findViewById(R.id.duration);
-        mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
+        ButterKnife.bind(this, rootView);
 
         setupListeners();
 
@@ -152,6 +145,11 @@ public class PlayerFragment extends DialogFragment {
     public void onPause() {
         super.onPause();
         mSeekHandler.removeCallbacks(mRunnable);
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mPreparedReceiver);
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mNotificationButtonPressedReceiver);
+        getActivity().unbindService(mediaConnection);
+        mMediaPlayerService = null;
+        ButterKnife.unbind(this);
     }
 
     @Override
@@ -170,16 +168,6 @@ public class PlayerFragment extends DialogFragment {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         return dialog;
-    }
-
-    @Override
-    public void onDestroy() {
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mPreparedReceiver);
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mNotificationButtonPressedReceiver);
-        getActivity().unbindService(mediaConnection);
-        mMediaPlayerService = null;
-        mSeekHandler.removeCallbacks(mRunnable);
-        super.onDestroy();
     }
 
     private ServiceConnection mediaConnection = new ServiceConnection() {
@@ -256,10 +244,12 @@ public class PlayerFragment extends DialogFragment {
                 if (mMediaPlayerService != null) {
                     if (mCurrentPosition > 0) {
                         mCurrentPosition--;
-                        mCurrentTrack = mMyTracks.get(mCurrentPosition);
-                        updateDisplay(mCurrentTrack);
-                        mProgressBar.setVisibility(View.VISIBLE);
+                    } else {
+                        mCurrentPosition = (--mCurrentPosition + mMyTracks.size()) % mMyTracks.size();
                     }
+                    mCurrentTrack = mMyTracks.get(mCurrentPosition);
+                    updateDisplay(mCurrentTrack);
+                    mProgressBar.setVisibility(View.VISIBLE);
                     mMediaPlayerService.playPrevious();
 
                 }
@@ -272,10 +262,12 @@ public class PlayerFragment extends DialogFragment {
                 if (mMediaPlayerService != null) {
                     if (mCurrentPosition < mMyTracks.size() - 1) {
                         mCurrentPosition++;
-                        mCurrentTrack = mMyTracks.get(mCurrentPosition);
-                        updateDisplay(mCurrentTrack);
-                        mProgressBar.setVisibility(View.VISIBLE);
+                    } else {
+                        mCurrentPosition = ++mCurrentPosition % mMyTracks.size();
                     }
+                    mCurrentTrack = mMyTracks.get(mCurrentPosition);
+                    updateDisplay(mCurrentTrack);
+                    mProgressBar.setVisibility(View.VISIBLE);
                     mMediaPlayerService.playNext();
 
                 }
@@ -346,7 +338,7 @@ public class PlayerFragment extends DialogFragment {
             mAlbumArt.setImageResource(android.R.drawable.picture_frame);
         }
 
-        trackName.setText(currentTrack.getTrackName());
+        mTrackName.setText(currentTrack.getTrackName());
 
         updatePlayButtonImage();
     }

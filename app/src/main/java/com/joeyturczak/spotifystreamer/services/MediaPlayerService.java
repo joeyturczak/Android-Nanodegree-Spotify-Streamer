@@ -172,16 +172,20 @@ public class MediaPlayerService extends Service implements
     public void playNext() {
         if(mPosition < mMyTracks.size() - 1) {
             mPosition++;
-            prepareTrack();
+        } else {
+            mPosition = ++mPosition % mMyTracks.size();
         }
+        prepareTrack();
     }
 
     /** Plays the previous song in the list. */
     public void playPrevious() {
         if(mPosition > 0) {
             mPosition--;
-            prepareTrack();
+        } else {
+            mPosition = (--mPosition + mMyTracks.size()) % mMyTracks.size();
         }
+        prepareTrack();
     }
 
     public class MediaBinder extends Binder {
@@ -210,6 +214,12 @@ public class MediaPlayerService extends Service implements
     }
 
     @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        this.stopSelf();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         if(mMediaPlayer != null) {
@@ -223,9 +233,6 @@ public class MediaPlayerService extends Service implements
     @Override
     public void onCompletion(MediaPlayer mp) {
         stop();
-        if(getApplicationContext() == null) {
-            this.stopSelf();
-        }
     }
 
     @Override

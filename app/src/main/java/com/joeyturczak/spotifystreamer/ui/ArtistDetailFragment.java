@@ -75,7 +75,6 @@ public class ArtistDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
         setHasOptionsMenu(true);
     }
 
@@ -155,53 +154,61 @@ public class ArtistDetailFragment extends Fragment {
 
     /** Gets the top tracks of the artist from Spotify via the getArtistTopTrack API and sends the relevant data to the list adapter. */
     private void spotifySearch() {
+        if (Utility.isNetworkAvailable(mContext)) {
 
-        SpotifyApi api = new SpotifyApi();
-        final SpotifyService spotify = api.getService();
+            SpotifyApi api = new SpotifyApi();
+            final SpotifyService spotify = api.getService();
 
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(SpotifyService.COUNTRY, mCountryCode);
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put(SpotifyService.COUNTRY, mCountryCode);
 
-        spotify.getArtistTopTrack(mMyArtist.getArtistId(), map, new SpotifyCallback<Tracks>() {
-            @Override
-            public void failure(SpotifyError spotifyError) {
-                Log.d(LOG_TAG, spotifyError.toString());
-            }
+            spotify.getArtistTopTrack(mMyArtist.getArtistId(), map, new SpotifyCallback<Tracks>() {
+                @Override
+                public void failure(SpotifyError spotifyError) {
+                    Log.d(LOG_TAG, spotifyError.toString());
+                }
 
-            @Override
-            public void success(Tracks tracks, Response response) {
-                final List<Track> trackList = tracks.tracks;
+                @Override
+                public void success(Tracks tracks, Response response) {
+                    final List<Track> trackList = tracks.tracks;
 
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mMyTracks.clear();
-                        mTrackListAdapter.notifyDataSetChanged();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mMyTracks.clear();
+                            mTrackListAdapter.notifyDataSetChanged();
 
-                        if (trackList.size() > 0) {
+                            if (trackList.size() > 0) {
 
-                            for(int i = 0; i < trackList.size(); i++) {
-                                String artistName = mMyArtist.getArtistName();
-                                String trackName = trackList.get(i).name;
-                                String albumName = trackList.get(i).album.name;
-                                String imageUrl = "";
-                                if(trackList.get(i).album.images.size() > 0) {
-                                    imageUrl = trackList.get(i).album.images.get(0).url;
+                                for (int i = 0; i < trackList.size(); i++) {
+                                    String artistName = mMyArtist.getArtistName();
+                                    String trackName = trackList.get(i).name;
+                                    String albumName = trackList.get(i).album.name;
+                                    String imageUrl = "";
+                                    if (trackList.get(i).album.images.size() > 0) {
+                                        imageUrl = trackList.get(i).album.images.get(0).url;
+                                    }
+                                    String previewUrl = trackList.get(i).preview_url;
+
+                                    mTrackListAdapter.add(new MyTrack(artistName, trackName, albumName, imageUrl, previewUrl));
                                 }
-                                String previewUrl = trackList.get(i).preview_url;
-
-                                mTrackListAdapter.add(new MyTrack(artistName, trackName, albumName, imageUrl, previewUrl));
+                            } else {
+                                if (mTopTracksToast != null) {
+                                    mTopTracksToast.cancel();
+                                }
+                                mTopTracksToast = Toast.makeText(getActivity(), R.string.toast_no_tracks, Toast.LENGTH_SHORT);
+                                mTopTracksToast.show();
                             }
-                        } else {
-                            if(mTopTracksToast != null) {
-                                mTopTracksToast.cancel();
-                            }
-                            mTopTracksToast = Toast.makeText(getActivity(), R.string.toast_no_tracks, Toast.LENGTH_SHORT);
-                            mTopTracksToast.show();
                         }
-                    }
-                });
+                    });
+                }
+            });
+        } else {
+            if (mTopTracksToast != null) {
+                mTopTracksToast.cancel();
             }
-        });
+            mTopTracksToast = Toast.makeText(getActivity(), R.string.toast_no_network_available, Toast.LENGTH_SHORT);
+            mTopTracksToast.show();
+        }
     }
 }

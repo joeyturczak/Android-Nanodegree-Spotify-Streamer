@@ -20,22 +20,36 @@ import com.joeyturczak.spotifystreamer.models.MyArtist;
 import com.joeyturczak.spotifystreamer.services.MediaPlayerService;
 import com.joeyturczak.spotifystreamer.utils.Utility;
 
-public class MainActivity extends AppCompatActivity implements ArtistSearchFragment.Callback {
+public class MainActivity extends AppCompatActivity implements ArtistSearchFragment.Callback, android.support.v4.app.FragmentManager.OnBackStackChangedListener {
 
     private static final String SEARCHFRAGMENT_TAG = "SFTAG";
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
     private static final String PLAYERFRAGMENT_TAG = "PFTAG";
 
-    public boolean mIsLargeLayout;
+    private boolean mIsLargeLayout;
+
+    private MyArtist mMyArtist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        getSupportFragmentManager().addOnBackStackChangedListener(this);
+        displayUp();
+
         if(savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.artistSearchFragment, new ArtistSearchFragment(), SEARCHFRAGMENT_TAG)
                     .commit();
+        } else {
+            Bundle bundle = savedInstanceState.getBundle(getString(R.string.bundle_key_bundle));
+            if(bundle != null) {
+                mMyArtist = bundle.getParcelable(getString(R.string.bundle_key_artist));
+                if(mMyArtist != null) {
+                    getSupportActionBar().setSubtitle(mMyArtist.getArtistName());
+                }
+            }
         }
 
         mIsLargeLayout = getResources().getBoolean(R.bool.large_layout);
@@ -47,6 +61,30 @@ public class MainActivity extends AppCompatActivity implements ArtistSearchFragm
                         .commit();
             }
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(getString(R.string.bundle_key_artist), mMyArtist);
+        outState.putBundle(getString(R.string.bundle_key_bundle), bundle);
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        displayUp();
+    }
+
+    public void displayUp() {
+        boolean up = getSupportFragmentManager().getBackStackEntryCount() > 0;
+        getSupportActionBar().setDisplayHomeAsUpEnabled(up);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        getSupportFragmentManager().popBackStack();
+        return super.onSupportNavigateUp();
     }
 
     @Override
@@ -68,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements ArtistSearchFragm
         return true;
     }
 
+    /** Creates an intent for sharing the currently playing track's URL */
     private Intent createShareIntent(String shareUrl) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -98,6 +137,7 @@ public class MainActivity extends AppCompatActivity implements ArtistSearchFragm
 
     @Override
     public void onItemSelected(MyArtist artist) {
+        mMyArtist = artist;
         getSupportActionBar().setSubtitle(artist.getArtistName());
 
         Utility.hideKeyboard(this);

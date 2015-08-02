@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.joeyturczak.spotifystreamer.R;
 import com.joeyturczak.spotifystreamer.adapters.ArtistListAdapter;
 import com.joeyturczak.spotifystreamer.models.MyArtist;
+import com.joeyturczak.spotifystreamer.utils.Utility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,13 +87,7 @@ public class ArtistSearchFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
         setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
     }
 
     @Override
@@ -147,55 +142,61 @@ public class ArtistSearchFragment extends Fragment {
 
     /** Searches Spotify via the searchArtists API and sends the relevant data to the list adapter. */
     private void spotifySearch(String query) {
+        if (Utility.isNetworkAvailable(mContext)) {
+            SpotifyApi api = new SpotifyApi();
+            final SpotifyService spotify = api.getService();
 
-        SpotifyApi api = new SpotifyApi();
-        final SpotifyService spotify = api.getService();
-
-        spotify.searchArtists(query, new SpotifyCallback<ArtistsPager>() {
-            @Override
-            public void failure(SpotifyError spotifyError) {
-                Log.d(LOG_TAG, spotifyError.toString());
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mSearchToast != null) {
-                            mSearchToast.cancel();
-                        }
-                        mSearchToast = Toast.makeText(mContext, R.string.toast_network_error, Toast.LENGTH_SHORT);
-                        mSearchToast.show();
-                    }
-                });
-            }
-
-            @Override
-            public void success(ArtistsPager artistsPager, Response response) {
-                final List<Artist> artists = artistsPager.artists.items;
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mMyArtists.clear();
-                        mArtistListAdapter.notifyDataSetChanged();
-                        if(artists.size() > 0) {
-                            for(int i = 0; i < artists.size(); i++) {
-                                String name = artists.get(i).name;
-                                String imageUrl = "";
-                                if(artists.get(i).images.size() > 0) {
-                                    imageUrl = artists.get(i).images.get(0).url;
-                                }
-                                String id = artists.get(i).id;
-                                mMyArtists.add(new MyArtist(name, imageUrl, id));
-                            }
-                        }
-                        else {
+            spotify.searchArtists(query, new SpotifyCallback<ArtistsPager>() {
+                @Override
+                public void failure(SpotifyError spotifyError) {
+                    Log.d(LOG_TAG, spotifyError.toString());
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
                             if (mSearchToast != null) {
                                 mSearchToast.cancel();
                             }
-                            mSearchToast = Toast.makeText(mContext, R.string.toast_no_artists_message, Toast.LENGTH_SHORT);
+                            mSearchToast = Toast.makeText(mContext, R.string.toast_network_error, Toast.LENGTH_SHORT);
                             mSearchToast.show();
                         }
-                    }
-                });
+                    });
+                }
+
+                @Override
+                public void success(ArtistsPager artistsPager, Response response) {
+                    final List<Artist> artists = artistsPager.artists.items;
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mMyArtists.clear();
+                            mArtistListAdapter.notifyDataSetChanged();
+                            if (artists.size() > 0) {
+                                for (int i = 0; i < artists.size(); i++) {
+                                    String name = artists.get(i).name;
+                                    String imageUrl = "";
+                                    if (artists.get(i).images.size() > 0) {
+                                        imageUrl = artists.get(i).images.get(0).url;
+                                    }
+                                    String id = artists.get(i).id;
+                                    mMyArtists.add(new MyArtist(name, imageUrl, id));
+                                }
+                            } else {
+                                if (mSearchToast != null) {
+                                    mSearchToast.cancel();
+                                }
+                                mSearchToast = Toast.makeText(mContext, R.string.toast_no_artists_message, Toast.LENGTH_SHORT);
+                                mSearchToast.show();
+                            }
+                        }
+                    });
+                }
+            });
+        } else {
+            if (mSearchToast != null) {
+                mSearchToast.cancel();
             }
-        });
+            mSearchToast = Toast.makeText(mContext, R.string.toast_no_network_available, Toast.LENGTH_SHORT);
+            mSearchToast.show();
+        }
     }
 }
